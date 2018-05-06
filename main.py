@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 
 import datetime as dt
 
@@ -54,14 +55,17 @@ def handle_custom_json(custom_json):
 
 
 for op in b.stream(OPS, start=start_block):
-    if op['type'] in ('comment', 'vote'):
-        update_comment(op['author'], op['permlink'])
-        handle_vote(op)
+    try:
+        if op['type'] in ('comment', 'vote'):
+            update_comment(op['author'], op['permlink'])
+            handle_vote(op)
 
-    if op['type'] == 'custom_json':
-        handle_custom_json(op)
+        if op['type'] == 'custom_json':
+            handle_custom_json(op)
 
-    indexer.set_checkpoint('comments', op['block_num'])
+        indexer.set_checkpoint('comments', op['block_num'])
 
-    if op['block_num'] % 100 == 0 and op['block_num'] != indexer.get_checkpoint('comments'):
-        print('Block #', op['block_num'])
+        if op['block_num'] % 100 == 0 and op['block_num'] != indexer.get_checkpoint('comments'):
+            print('Block #', op['block_num'])
+    except Exception as e:
+        logging.exception('Err op')

@@ -7,10 +7,12 @@ services:
       - db
     depends_on:
       - db
-    env:
+    environment:
       - MONGO_HOST=mongo
       - NODE
   db:
     image: "mongo"
     ports:
       - "0.0.0.0:27018:27017"
+    volumes:
+      - ./data:/data/db
