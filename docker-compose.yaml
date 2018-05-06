@@ -1,0 +1,16 @@
+version: '3'
+services:
+  parser:
+    restart: always
+    build: .
+    links:
+      - db
+    depends_on:
+      - db
+    env:
+      - MONGO_HOST=mongo
+      - NODE
+  db:
+    image: "mongo"
+    ports:
+      - "0.0.0.0:27018:27017"
