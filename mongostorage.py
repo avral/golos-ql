@@ -83,18 +83,17 @@ class Indexer(object):
         if not self.instance:
             self.coll.insert_one({
                 "operations_checkpoint": 1,
-                "start_author_checkpoint": None,
-                "start_permlink_checkpoint": None
+                "init_posts_synced": False
             })
 
             self.instance = self.coll.find_one()
 
-    def get_checkpoint(self, name):
-        field = f'{name}_checkpoint'
+    def get_status(self, name):
+        field = name
         return self.coll.find_one().get(field)
 
-    def set_checkpoint(self, name, index):
-        field = f'{name}_checkpoint'
+    def set_status(self, name, index):
+        field = name
         return self.coll.update_one({}, {"$set": {field: index}})
 
 
