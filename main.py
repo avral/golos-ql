@@ -52,12 +52,13 @@ def sync_init_posts():
             update_comment(post_identifi)
 
         indexer.set_status('init_posts_synced', True)
+        indexer.set_status('sync_from_block', 16385364)
         logging.info('Init sync complete.')
 
 
-def stream():
+def stream(start=indexer.get_status('sync_from_block')):
     current_block = 0
-    for op in Blockchain().stream(OPS):
+    for op in Blockchain().stream(OPS, start=start):
         try:
             if op['type'] == 'comment':
                 update_comment(op)
@@ -66,10 +67,13 @@ def stream():
                 handle_vote(op)
         except Exception as e:
             logging.exception('Err op')
+            raise e
 
         if op['block_num'] % 100 == 0 and op['block_num'] != current_block:
             logging.info('Block # %s' % op['block_num'])
             current_block = op['block_num']
+
+        indexer.set_status('sync_from_block', op['block_num'])
 
 
 def main():

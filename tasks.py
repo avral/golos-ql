@@ -49,7 +49,10 @@ def add_post(comm):
 
 def update_comment(comment):
     if not isinstance(comment, Post):
-        comment = Post(comment)
+        try:
+            comment = Post(comment)
+        except PostDoesNotExist:
+            return
 
     if not comment.is_comment():
         if APP_TAG not in comment.tags:

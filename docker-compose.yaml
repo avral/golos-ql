@@ -1,7 +1,7 @@
 version: '3'
 services:
   api:
-    restart: always
+    #restart: always
     image: app
     build: .
     command: python api/app.py
