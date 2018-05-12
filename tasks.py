@@ -42,6 +42,9 @@ def update_comment(comment):
             {'$set': {**comment, 'updatedAt': dt.datetime.utcnow()}},
             upsert=True)
 
+        indexer.set_checkpoint('start_author', comment['author'])
+        indexer.set_checkpoint('start_permlink', comment['permlink'])
+
         logging.info(f'Sync: {comment["author"]} {comment["permlink"]}')
     else:
         parent_q = {
