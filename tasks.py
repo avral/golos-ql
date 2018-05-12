@@ -23,30 +23,39 @@ mongo = MongoStorage()
 indexer = Indexer(mongo)
 
 
-@app.task(ignore_result=True)
-def update_comment(op):
-    post = Post({'author': op['author'], 'permlink': op['permlink']},
-                steem_instance=golos).export()
+#@app.task(ignore_result=True)
+def update_comment(comment):
+    comment = comment.export()
 
-    if post['depth'] == 0:
+    if comment['depth'] == 0:
+        # if 
         mongo.Posts.update_one(
-            {'identifier': post['identifier']},
-            {'$set': {**post, 'updatedAt': dt.datetime.utcnow()}}, upsert=True)
+            {'identifier': comment['identifier']},
+            {'$set': {**comment, 'updatedAt': dt.datetime.utcnow()}},
+            upsert=True)
 
-    if post['depth'] > 0:
-        mongo.Comments.update_one(
-            {'identifier': post['identifier']},
-            {'$set': {**post, 'updatedAt': dt.datetime.utcnow()}}, upsert=True)
+        # print(2, comment['author'], comment['title'])
+    if comment['depth'] > 0:
+        parent_q = {
+            'author': comment['parent_author'],
+            'permlink': comment['parent_permlink']
+        }
 
-    indexer.set_checkpoint('comments', op['block_num'])
+        # TODO Один запрос
+        if (mongo.Posts.find(parent_q).count() > 0 or
+                mongo.Comments.find(parent_q).count() > 0):
 
+            mongo.Comments.update_one(
+                {'identifier': comment['identifier']},
+                {'$set': {**comment, 'updatedAt': dt.datetime.utcnow()}},
+                upsert=True)
 
-@app.task(ignore_result=True)
+#@app.task(ignore_result=True)
 def handle_vote(vote):
-    if BLOCK_FROM_UPDATE_COMMENT_BY_VOTE < vote['block_num']:
-        # Обновлять посты по апвоуту, начиная с блока
-        # что бы не синкать все с начала блокчейна
-        update_comment.delay(vote)
+    comment_for_update = Post({'author': vote['author'],
+                               'permlink': vote['permlink']})
+
+    update_comment(comment_for_update)
 
     # TODO Обработака апвоутов
 

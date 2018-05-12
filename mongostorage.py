@@ -6,7 +6,7 @@ from pymongo.errors import ConnectionFailure
 MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
 MONGO_PORT = os.getenv('MONGO_PORT', 27017)
 
-DB_NAME = 'golos_mongo'
+DB_NAME = os.getenv('DB_NAME', 'mapala')
 
 
 class MongoStorage(object):
@@ -24,6 +24,7 @@ class MongoStorage(object):
             self.Posts = self.db['Posts']
             self.Comments = self.db['Comments']
             self.CustomJson = self.db['CustomJson']
+            self.Test = self.db['Test']
 
     def list_collections(self):
         return self.db.collection_names()
@@ -82,12 +83,15 @@ class Indexer(object):
         if not self.instance:
             self.coll.insert_one({
                 "operations_checkpoint": 1,
+                "start_author_checkpoint": None,
+                "start_permlink_checkpoint": None
             })
+
             self.instance = self.coll.find_one()
 
     def get_checkpoint(self, name):
         field = f'{name}_checkpoint'
-        return self.instance.get(field, 1)
+        return self.coll.find_one().get(field)
 
     def set_checkpoint(self, name, index):
         field = f'{name}_checkpoint'

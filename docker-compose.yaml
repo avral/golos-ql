@@ -1,54 +1,44 @@
 version: '3'
 services:
+  api:
+    restart: always
+    image: app
+    build: .
+    command: python api/app.py
+    links:
+      - db
+    ports:
+      - 5000:5000
+    depends_on:
+      - db
+    environment:
+      - HOST=0.0.0.0
+      - MONGO_HOST=db
+      - DB_NAME
+      - NODE
+      - RESYNC
+      - APP_TAG=mapala
+      - BLOCK_FROM_UPDATE_COMMENT_BY_VOTE
+    tty: true
   parser:
     restart: always
-    build: .
     image: app
+    command: python main.py
     links:
       - db
     depends_on:
       - db
     environment:
-      - 'CELERY_BACKEND_URL=redis://redis'
-      - 'CELERY_BROKER_URL=redis://redis'
-      - 'MONGO_HOST=db'
+      - MONGO_HOST=db
+      - DB_NAME
       - NODE
+      - RESYNC
+      - APP_TAG=mapala
       - BLOCK_FROM_UPDATE_COMMENT_BY_VOTE
     tty: true
   db:
     image: "mongo"
-    ports:
-      - "0.0.0.0:27018:27017"
+    #ports:
+    #  - "0.0.0.0:27018:27017"
     volumes:
       - ./data:/data/db
-  parser-worker:
-    command: python main.py
-    image: app
-    environment:
-      - 'CELERY_BACKEND_URL=redis://redis'
-      - 'CELERY_BROKER_URL=redis://redis'
-      - 'MONGO_HOST=db'
-    links:
-      - db
-      - redis
-    restart: always
-    tty: true
-  celery-worker:
-    command: celery -A tasks worker
-    image: app
-    environment:
-      - 'CELERY_BACKEND_URL=redis://redis'
-      - 'CELERY_BROKER_URL=redis://redis'
-      - 'MONGO_HOST=db'
-    links:
-      - db
-      - redis
-    restart: always
-    tty: true
-  redis:
-    command: redis-server
-    image: 'redis:alpine'
-    ports:
-      - '6379:6379'
-    restart: always
-    tty: true
