@@ -7,3 +7,4 @@ flask_graphql
 mongoengine
 mongomock
 flask-cors
+tqdm
