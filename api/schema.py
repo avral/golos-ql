@@ -14,6 +14,10 @@ class Meta(graphene.ObjectType):
     image = GenericScalar(first=graphene.Boolean())
     app = GenericScalar()
     location = GenericScalar()
+    tags = GenericScalar()
+
+    def resolve_tags(self, info, first=False):
+        return self.get('tags', [])
 
     def resolve_image(self, info, first=False):
         images = self.get('image', [])
@@ -54,6 +58,13 @@ class Post(MongoengineObjectType):
         return self.json_metadata
 
 
+class Stats(graphene.ObjectType):
+    posts_count = graphene.Int()
+
+    def resolve_posts_count(self, info):
+        return PostModel.objects.count()
+
+
 class Query(graphene.ObjectType):
     posts = graphene.List(
         Post,
@@ -63,7 +74,7 @@ class Query(graphene.ObjectType):
     )
 
     post = graphene.Field(Post, identifier=graphene.String())
-    markers = graphene.Field(Post, identifier=graphene.String())
+    stats = graphene.Field(Stats)
 
     def resolve_posts(self, info, page=1, author=None, bbox={}):
         # TODO Реализовать поиск по координатам
@@ -81,5 +92,8 @@ class Query(graphene.ObjectType):
     def resolve_post(self, context, identifier=None):
         return PostModel.objects.get(identifier=identifier)
 
+    def resolve_stats(self, context):
+        return Stats()
 
-schema = graphene.Schema(query=Query, types=[Post])
+
+schema = graphene.Schema(query=Query, types=[Post, Stats])

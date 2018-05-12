@@ -1,10 +1,13 @@
 import os
+import logging
 import datetime as dt
 from celery import Celery
 from piston.post import Post
 import json
 from piston.steem import Steem
 from mongostorage import MongoStorage, Indexer
+from config import APP_TAG
+from contextlib import suppress
 
 
 app = Celery(
@@ -25,30 +28,39 @@ indexer = Indexer(mongo)
 
 #@app.task(ignore_result=True)
 def update_comment(comment):
-    comment = comment.export()
+    if not isinstance(comment, object):
+        comment = Post(comment)
 
-    if comment['depth'] == 0:
-        # if 
+    if not comment.is_comment():
+        comment = comment.export()
+
+        if APP_TAG not in comment['tags']:
+            return
+
         mongo.Posts.update_one(
             {'identifier': comment['identifier']},
             {'$set': {**comment, 'updatedAt': dt.datetime.utcnow()}},
             upsert=True)
 
-        # print(2, comment['author'], comment['title'])
-    if comment['depth'] > 0:
+        logging.info(f'Sync: {comment["author"]} {comment["permlink"]}')
+    else:
         parent_q = {
-            'author': comment['parent_author'],
-            'permlink': comment['parent_permlink']
+            'author': comment.parent_author,
+            'permlink': comment.parent_permlink
         }
 
         # TODO Один запрос
         if (mongo.Posts.find(parent_q).count() > 0 or
                 mongo.Comments.find(parent_q).count() > 0):
 
+            comment = comment.export()
+
             mongo.Comments.update_one(
                 {'identifier': comment['identifier']},
                 {'$set': {**comment, 'updatedAt': dt.datetime.utcnow()}},
                 upsert=True)
+
+            logging.info(f'Sync: {comment["author"]} {comment["permlink"]}')
 
 #@app.task(ignore_result=True)
 def handle_vote(vote):
@@ -67,7 +79,7 @@ def handle_custom_json(custom_json):
         custom_json['json'] = json.loads(meta_str)
         custom_json['author'] = custom_json.pop('required_posting_auths')[0]
     except Exception as e:
-        print('Error', e)
+        logging.exception('Error', e)
         custom_json['json'] = {"error": "invalid format"}
 
     if not isinstance(custom_json['json'], (dict, list)):
