@@ -16,8 +16,9 @@ indexer = Indexer(mongo)
 
 def fetch_comments(post):
     for comment in [c for c in post.get_comments(sort="created")]:
+        update_comment(comment)
+
         with suppress(PostDoesNotExist):
-            update_comment(comment)
             fetch_comments(Post(comment))
 
 
@@ -50,6 +51,7 @@ def update_comment(comment):
     if not isinstance(comment, Post):
         try:
             comment = Post(comment)
+            comment.refresh()
         except PostDoesNotExist:
             return
 
