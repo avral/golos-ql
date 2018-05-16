@@ -3,7 +3,7 @@ import os
 from mongoengine import Document, DynamicDocument, connect
 from mongoengine.fields import (
     StringField, ObjectId, IntField, DictField,
-    DateTimeField,
+    DateTimeField, ListField
 )
 
 
@@ -15,6 +15,8 @@ connect(DB_NAME, host=MONGO_HOST)
 
 class Post(DynamicDocument):
     author = StringField()
+    active_votes = DictField()
+    children = IntField()
     title = StringField()
     identifier = StringField()
     body = StringField()
@@ -26,6 +28,8 @@ class Post(DynamicDocument):
 
 class Comment(DynamicDocument):
     author = StringField()
+    active_votes = DictField()
+    children = IntField()
     title = StringField()
     identifier = StringField()
     body = StringField()

@@ -1,4 +1,17 @@
+import re
+
 from models import Comment
+
+
+def find_images(body, first=False):
+    regex = r'\b(https?:\/\/\S+(?:png|jpe?g|gif)\S*)\b'
+
+    images = re.findall(regex, body)
+
+    if first:
+        return images[0] if images else None
+
+    return images
 
 
 def nodes(node):

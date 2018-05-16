@@ -1,4 +1,4 @@
-pymongo==3.4.0
+pymongo>=3.6.1
 git+https://github.com/bitfag/golos-piston.git#egg=golos-piston
 celery[redis]
 graphene-mongo
@@ -8,3 +8,4 @@ mongoengine
 mongomock
 flask-cors
 tqdm
+urlextract
