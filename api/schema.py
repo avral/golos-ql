@@ -65,26 +65,33 @@ class Query(graphene.ObjectType):
         if len(bbox) != 4:
             raise GraphQLError('Invalid bbox')
 
-        # TODO Запрос для GeoJSON
-
-        # Преобразует старый формат в валидные GeoJSON координаты
+        # Преобразует старый формат в валидные GeoJSON поинты
         query = [
-            {"$addFields": {
-                "location": {
-                    "type": "Point",
-                    "coordinates": [
-                        "$json_metadata.location.lng",
-                        "$json_metadata.location.lat"
-                    ]
-                }
-            }},
-            {"$match": {
-                "location": {
-                    "$geoWithin": {
-                        "$box": [(bbox[0], bbox[1]), (bbox[2], bbox[3])]
+            {
+                "$addFields": {
+                    "json_metadata.location.geometry": {
+                        "$ifNull": [
+                            "$json_metadata.location.geometry", {
+                                "type": "Point",
+                                "coordinates": [
+                                     "$json_metadata.location.lat",
+                                     "$json_metadata.location.lng"
+                                 ]
+                            }
+                        ]
                     }
                 }
-            }}
+            },
+
+            {
+                "$match": {
+                    "json_metadata.location.geometry": {
+                        "$geoWithin": {
+                            "$box": [(bbox[0], bbox[1]), (bbox[2], bbox[3])]
+                        }
+                    }
+                }
+            }
         ]
 
         # Лимин на 150 маркеров за 1 раз
