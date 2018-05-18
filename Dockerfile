@@ -1,8 +1,15 @@
 FROM python:3.6.4
 
-COPY . /app
+ADD requirements.txt /app/
 WORKDIR /app
-
 RUN pip install -r requirements.txt
 
-WORKDIR /app
+ADD . /app
+
+
+#COPY . /app
+#WORKDIR /app
+#
+#RUN pip install -r requirements.txt
+#
+#WORKDIR /app

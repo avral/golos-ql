@@ -56,6 +56,7 @@ def update_comment(comment):
             return
 
     if not comment.is_comment():
+        print(comment, comment.tags, APP_TAG)
         if APP_TAG not in comment.tags:
             return
 

@@ -38,7 +38,8 @@ services:
     tty: true
   db:
     image: "mongo"
-    #ports:
-    #  - "0.0.0.0:27018:27017"
+    ports:
+      - "127.0.0.1:27018:27017"
     volumes:
-      - ./data:/data/db
+      - ./data/${APP_TAG}:/data/db
+        #- ./data:/data/db
