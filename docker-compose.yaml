@@ -13,11 +13,11 @@ services:
       - db
     environment:
       - HOST=0.0.0.0
-      - MONGO_HOST=db
+      - MONGO_HOST=${MONGO_HOST}
       - DB_NAME
       - NODE
       - RESYNC
-      - APP_TAG=mapala
+      - APP_TAG=${APP_TAG}
       - BLOCK_FROM_UPDATE_COMMENT_BY_VOTE
     tty: true
   parser:
@@ -29,11 +29,12 @@ services:
     depends_on:
       - db
     environment:
-      - MONGO_HOST=db
+      - START
+      - MONGO_HOST=${MONGO_HOST}
       - DB_NAME
       - NODE
       - RESYNC
-      - APP_TAG=mapala
+      - APP_TAG=${APP_TAG}
       - BLOCK_FROM_UPDATE_COMMENT_BY_VOTE
     tty: true
   db:

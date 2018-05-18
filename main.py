@@ -23,6 +23,7 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 NODE = os.getenv('NODE', 'wss://ws17.golos.io')
 OPS = 'comment', 'vote', 'custom_json'
+START = os.getenv('START', None)
 
 
 # HACK Патчим на ошибки от ноды, что бы скрипт не падал
@@ -55,9 +56,9 @@ def sync_init_posts():
         logging.info('Init sync complete.')
 
 
-def stream(start=indexer.get_status('sync_from_block')):
+def stream(start=START or indexer.get_status('sync_from_block')):
     current_block = 0
-    for op in Blockchain().stream(OPS, start=start):
+    for op in Blockchain().stream(OPS, start=int(start)):
         try:
             if op['type'] == 'comment':
                 update_comment(op)
