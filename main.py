@@ -7,16 +7,15 @@ from tqdm import tqdm
 from piston.instance import set_shared_steem_instance
 from pistonapi.steemnoderpc import SteemNodeRPC
 
+from piston.steem import Steem
+from piston.blockchain import Blockchain
+from mongostorage import MongoStorage, Indexer
+
+from config import PROD
 from tasks import (
     update_comment,
     handle_vote,
 )
-
-
-from piston.steem import Steem
-from piston.blockchain import Blockchain
-
-from mongostorage import MongoStorage, Indexer
 
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
@@ -77,7 +76,7 @@ def stream(start=indexer.get_status('sync_from_block')):
 
 
 def main():
-    if indexer.get_status('init_posts_synced') is False:
+    if indexer.get_status('init_posts_synced') is False and PROD:
         sync_init_posts()
 
     stream()

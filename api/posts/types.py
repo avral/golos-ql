@@ -15,8 +15,12 @@ class Meta(graphene.ObjectType):
     app = GenericScalar()
     location = GenericScalar()
     tags = GenericScalar()
+    format = graphene.String()
 
-    def resolve_tags(self, info, first=False):
+    def resolve_format(self, info):
+        return self.get('format', None)
+
+    def resolve_tags(self, info):
         return self.get('tags', [])
 
     def resolve_image(self, info, first=False):

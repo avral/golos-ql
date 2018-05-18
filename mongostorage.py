@@ -84,7 +84,7 @@ class Indexer(object):
             self.coll.insert_one({
                 "operations_checkpoint": 1,
                 "init_posts_synced": False,
-                "sync_from_block": 0
+                "sync_from_block": None
             })
 
             self.instance = self.coll.find_one()

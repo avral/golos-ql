@@ -62,6 +62,9 @@ class Query(graphene.ObjectType):
         return Stats()
 
     def resolve_markers(self, context, bbox, author=None):
+        if len(bbox) != 4:
+            raise GraphQLError('Invalid bbox')
+
         # TODO Запрос для GeoJSON
 
         # Преобразует старый формат в валидные GeoJSON координаты
@@ -84,7 +87,8 @@ class Query(graphene.ObjectType):
             }}
         ]
 
-        return list(PostModel.objects.aggregate(*query))
+        # Лимин на 150 маркеров за 1 раз
+        return list(PostModel.objects.aggregate(*query))[:150]
 
 
 schema = graphene.Schema(query=Query, types=[Post, Stats])
