@@ -19,7 +19,7 @@ class Marker(graphene.ObjectType):
         return self['identifier']
 
     def resolve_location(self, info):
-        return self['location']
+        return self['json_metadata']['location']
 
 
 class Query(graphene.ObjectType):
