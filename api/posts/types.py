@@ -63,10 +63,14 @@ class Post(MongoengineObjectType):
     json_metadata = graphene.Field(Meta)
     thumb = graphene.String()
     active_votes = graphene.List(Vote)
+    is_voted = graphene.Boolean(account=graphene.String())
 
     class Meta:
         model = PostModel
         interfaces = (Node,)
+
+    def resolve_is_voted(self, info, account):
+        return account in [v['voter'] for v in self.active_votes]
 
     def resolve_comments(self, info):
         return find_comments(self)
