@@ -9,8 +9,10 @@ from mongoengine.fields import (
 
 DB_NAME = os.getenv('DB_NAME', 'mapala')
 MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
+MONGO_PORT = os.getenv('MONGO_PORT', 27017)
 
-connect(DB_NAME, host=MONGO_HOST)
+
+connect(DB_NAME, host=MONGO_HOST, port=int(MONGO_PORT))
 
 
 class Post(DynamicDocument):

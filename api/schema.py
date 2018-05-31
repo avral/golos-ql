@@ -19,6 +19,8 @@ class Marker(graphene.ObjectType):
         return self['identifier']
 
     def resolve_location(self, info):
+        # location = self['json_metadata']['location']
+
         return self['json_metadata']['location']
 
 
@@ -61,41 +63,83 @@ class Query(graphene.ObjectType):
     def resolve_stats(self, context):
         return Stats()
 
-    def resolve_markers(self, context, bbox, author=None):
-        if len(bbox) != 4:
-            raise GraphQLError('Invalid bbox')
-
+    def resolve_markers(self, context, bbox=None, author=None):
         # Преобразует старый формат в валидные GeoJSON поинты
         query = [
-            {
-                "$addFields": {
-                    "json_metadata.location.geometry": {
-                        "$ifNull": [
-                            "$json_metadata.location.geometry", {
-                                "type": "Point",
-                                "coordinates": [
-                                     "$json_metadata.location.lat",
-                                     "$json_metadata.location.lng"
-                                 ]
-                            }
-                        ]
-                    }
-                }
-            },
+            {"$limit": 150},
 
             {
-                "$match": {
-                    "json_metadata.location.geometry": {
-                        "$geoWithin": {
-                            "$box": [(bbox[0], bbox[1]), (bbox[2], bbox[3])]
+                "$addFields": {
+                    "json_metadata.location": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [{"$type": "$json_metadata.coordinates"}, "string"]
+                            },
+                            "then": {
+                                "name": "$json_metadata.location",
+                                "geometry": {
+                                    "type": "Point",
+                                    "coordinates": {
+                                        "$split": [
+                                            "$json_metadata.coordinates",
+                                            ","
+                                        ]
+                                    }
+                                }
+                            },
+                            "else": {
+                                "name": "$json_metadata.location.name",
+                                "geometry": {
+                                    "type": "Point",
+                                    "coordinates": [
+                                         "$json_metadata.location.lat",
+                                         "$json_metadata.location.lng"
+                                     ]
+                                }
+                            }
                         }
                     }
                 }
             }
         ]
 
+        if author:
+            query.append({"$match": {"author": author}})
+
+        if bbox:
+            if len(bbox) != 4:
+                raise GraphQLError('Invalid bbox')
+
+            x0, y0, x1, y1 = bbox
+            polygon = [(x0, y0), (x0, y1), (x1, y1), (x1, y0), (x0, y0)]
+
+            {
+                "$match": {
+                    "json_metadata.location.geometry": {
+                        "$geoWithin": {
+                            "$geometry": {
+                                "type": "Polygon",
+                                "coordinates": [polygon]
+                            }
+                        }
+                    }
+                }
+            }
+
+            #query.append({
+            #    "$match": {
+            #        "json_metadata.location.geometry": {
+            #            "$geoWithin": {
+            #                "$box": [(bbox[0], bbox[1]), (bbox[2], bbox[3])]
+            #            }
+            #        }
+            #    }
+            #})
+        # TODO Не находит точки в азии
+
         # Лимин на 150 маркеров за 1 раз
-        return list(PostModel.objects.aggregate(*query))[:150]
+        #return list(PostModel.objects.aggregate(*query))[:150]
+        return list(PostModel.objects.aggregate(*query))
 
 
 schema = graphene.Schema(query=Query, types=[Post, Stats])
