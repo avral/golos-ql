@@ -9,7 +9,7 @@ from config import APP_TAG
 from contextlib import suppress
 
 
-NODE = os.getenv('NODE', 'wss://ws17.golos.io')
+NODE = os.getenv('NODE', 'wss://ws18.golos.io')
 mongo = MongoStorage()
 indexer = Indexer(mongo)
 

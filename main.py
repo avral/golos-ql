@@ -21,7 +21,7 @@ from tasks import (
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 
-NODE = os.getenv('NODE', 'wss://ws17.golos.io')
+NODE = os.getenv('NODE', 'wss://ws18.golos.io')
 OPS = 'comment', 'vote', 'custom_json'
 
 START = os.getenv('START', None)
