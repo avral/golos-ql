@@ -1,6 +1,6 @@
 import re
 
-from models import Comment
+from models import CommentModel
 
 
 def find_images(body, first=False):

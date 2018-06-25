@@ -1,11 +1,12 @@
+import json
+
 import graphene
 from graphene.relay import Node
 from graphene_mongo import MongoengineObjectType
 from graphene.types.generic import GenericScalar
 
 from models import (
-    Post as PostModel,
-    Comment as CommentModel
+    CommentModel
 )
 from utils import find_comments, find_images
 
@@ -48,7 +49,7 @@ class Stats(graphene.ObjectType):
     posts_count = graphene.Int()
 
     def resolve_posts_count(self, info):
-        return PostModel.objects.count()
+        return CommentModel.objects.count()
 
 
 class Vote(graphene.ObjectType):
@@ -66,7 +67,7 @@ class Post(MongoengineObjectType):
     is_voted = graphene.Boolean(account=graphene.String())
 
     class Meta:
-        model = PostModel
+        model = CommentModel
         interfaces = (Node,)
 
     def resolve_is_voted(self, info, account):
@@ -79,7 +80,12 @@ class Post(MongoengineObjectType):
         return self.json_metadata['image'][0]
 
     def resolve_json_metadata(self, info):
-        return self.json_metadata
+        try:
+            return json.loads(self.json_metadata)
+        except:
+            pass
+
+        return {}
 
     def resolve_thumb(self, info):
         return find_images(self.body, first=True)

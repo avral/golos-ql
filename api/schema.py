@@ -3,17 +3,13 @@ from graphql import GraphQLError
 
 from posts.types import Post, Stats
 from models import (
-    Post as PostModel,
+    CommentModel,
 )
 
 
 class Marker(graphene.ObjectType):
-    title = graphene.String()
     identifier = graphene.String()
     location = graphene.types.generic.GenericScalar()
-
-    def resolve_title(self, info):
-        return self['title']
 
     def resolve_identifier(self, info):
         return self['identifier']
@@ -27,6 +23,7 @@ class Marker(graphene.ObjectType):
 class Query(graphene.ObjectType):
     posts = graphene.List(
         Post,
+        category=graphene.String(),
         author=graphene.String(),
         page=graphene.Int(),
     )
@@ -39,32 +36,45 @@ class Query(graphene.ObjectType):
     post = graphene.Field(Post, identifier=graphene.String())
     stats = graphene.Field(Stats)
 
-    def resolve_posts(self, info, page=1, author=None):
-        # TODO Реализовать поиск по координатам
-        # http://docs.mongoengine.org/guide/querying.html#geo-queries
-        q = {}
+    def resolve_posts(self, info, page=1, author=None, category=None):
+        page_size = 10
+        offset = (page - 1) * page_size
+        q = {
+            "depth": 0  # Only posts
+        }
 
         if author:
             q['author'] = author
+        if category:
+            q['category'] = category
 
-        page_size = 10
-        offset = (page - 1) * page_size
+        print(q)
 
         return list(
-            PostModel.objects(**q)
-            .skip(offset)
-            .limit(page_size)
-            .order_by('-created')
+           CommentModel.objects(**q)
+           .skip(offset)
+           .limit(page_size)
+           .order_by('-created')
         )
+        # return list(
+        #    CommentModel.objects(**q)
+        #    .skip(offset)
+        #    .limit(page_size)
+        #    .order_by('-created')
+        # )
 
     def resolve_post(self, context, identifier=None):
-        return PostModel.objects.get(identifier=identifier)
+        author, permlink = identifier[1:].split('/')
+
+        return CommentModel.objects.get(author=author, permlink=permlink)
 
     def resolve_stats(self, context):
         return Stats()
 
     def resolve_markers(self, context, bbox=None, author=None):
-        # Преобразует старый формат в валидные GeoJSON поинты
+        #  Преобразует старый формат в валидные GeoJSON поинты
+        # TODO Реализовать поиск по координатам
+        # http://docs.mongoengine.org/guide/querying.html#geo-queries
         query = [
             {"$limit": 150},
 
@@ -139,7 +149,14 @@ class Query(graphene.ObjectType):
 
         # Лимин на 150 маркеров за 1 раз
         #return list(PostModel.objects.aggregate(*query))[:150]
-        return list(PostModel.objects.aggregate(*query))
+        return list(CommentModel.objects.aggregate(*query))
 
 
 schema = graphene.Schema(query=Query, types=[Post, Stats])
+
+        # q = [
+        #     {"$match": {"depth": 0}},  # Get only posts
+        #     {"$sort": {'created': -1}},
+
+        #     {"$skip": offset},
+        #     {"$limit": page_size},

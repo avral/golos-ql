@@ -3,11 +3,11 @@ import os
 from mongoengine import Document, DynamicDocument, connect
 from mongoengine.fields import (
     StringField, ObjectId, IntField, DictField,
-    DateTimeField, ListField
+    DateTimeField
 )
 
 
-DB_NAME = os.getenv('DB_NAME', 'mapala')
+DB_NAME = os.getenv('DB_NAME', 'Golos')
 MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
 MONGO_PORT = os.getenv('MONGO_PORT', 27017)
 
@@ -15,20 +15,14 @@ MONGO_PORT = os.getenv('MONGO_PORT', 27017)
 connect(DB_NAME, host=MONGO_HOST, port=int(MONGO_PORT))
 
 
-class Post(DynamicDocument):
-    author = StringField()
-    active_votes = DictField()
-    children = IntField()
-    title = StringField()
-    identifier = StringField()
-    body = StringField()
+class AccountModel(DynamicDocument):
+    name = StringField()
     json_metadata = DictField()
-    permlink = StringField()
-    created = DateTimeField()
-    meta = {'collection': 'Posts'}
+
+    meta = {'collection': 'account_object'}
 
 
-class Comment(DynamicDocument):
+class CommentModel(DynamicDocument):
     author = StringField()
     active_votes = DictField()
     children = IntField()
@@ -39,12 +33,5 @@ class Comment(DynamicDocument):
     permlink = StringField()
     depth = IntField()
     created = DateTimeField()
-    meta = {'collection': 'Comments'}
 
-
-class Indexer(Document):
-    meta = {'collection': '_indexer'}
-    _id = ObjectId()
-    operations_checkpoint = IntField()
-    start_author_checkpoint = StringField()
-    start_permlink_checkpoint = StringField()
+    meta = {'collection': 'comment_object'}
