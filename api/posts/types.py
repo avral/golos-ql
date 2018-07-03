@@ -1,14 +1,12 @@
-import json
-
 import graphene
 from graphene.relay import Node
 from graphene_mongo import MongoengineObjectType
 from graphene.types.generic import GenericScalar
 
 from models import (
-    CommentModel
+    CommentModel, VoteModel
 )
-from utils import find_comments, find_images
+from utils import find_comments, find_images, prepare_json
 
 
 class Meta(graphene.ObjectType):
@@ -63,15 +61,25 @@ class Post(MongoengineObjectType):
     comments = graphene.List(Comment)
     json_metadata = graphene.Field(Meta)
     thumb = graphene.String()
-    active_votes = graphene.List(Vote)
+    total_payout = graphene.Int()
+    votes = graphene.List(Vote)
     is_voted = graphene.Boolean(account=graphene.String())
 
     class Meta:
         model = CommentModel
         interfaces = (Node,)
 
+    def resolve_votes(self, info):
+        # return VoteModel.objects(vo)
+        return self.net_votes
+
+    def resolve_total_payout(self, info):
+        return 0
+
     def resolve_is_voted(self, info, account):
-        return account in [v['voter'] for v in self.active_votes]
+        vote = VoteModel.objects(comment=self.id, voter=account).first()
+
+        return vote is not None
 
     def resolve_comments(self, info):
         return find_comments(self)
@@ -80,12 +88,7 @@ class Post(MongoengineObjectType):
         return self.json_metadata['image'][0]
 
     def resolve_json_metadata(self, info):
-        try:
-            return json.loads(self.json_metadata)
-        except:
-            pass
-
-        return {}
+        return prepare_json(self.json_metadata)
 
     def resolve_thumb(self, info):
         return find_images(self.body, first=True)

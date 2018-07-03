@@ -23,10 +23,12 @@ class Marker(graphene.ObjectType):
 class Query(graphene.ObjectType):
     posts = graphene.List(
         Post,
+        tag=graphene.String(),
         category=graphene.String(),
         author=graphene.String(),
         page=graphene.Int(),
     )
+
     markers = graphene.List(
         Marker,
         author=graphene.String(),
@@ -36,7 +38,9 @@ class Query(graphene.ObjectType):
     post = graphene.Field(Post, identifier=graphene.String())
     stats = graphene.Field(Stats)
 
-    def resolve_posts(self, info, page=1, author=None, category=None):
+    def resolve_posts(self, info, page=1,
+                      author=None, category=None, tag=None):
+        # {"tags":\[.*"ru--golos".*?\],
         page_size = 10
         offset = (page - 1) * page_size
         q = {
@@ -47,6 +51,8 @@ class Query(graphene.ObjectType):
             q['author'] = author
         if category:
             q['category'] = category
+        # if tag:
+        #     q['json_metadata__contains'] = r'{"tags":\[.*"%s".*?\],' % tag
 
         print(q)
 
@@ -54,14 +60,7 @@ class Query(graphene.ObjectType):
            CommentModel.objects(**q)
            .skip(offset)
            .limit(page_size)
-           .order_by('-created')
         )
-        # return list(
-        #    CommentModel.objects(**q)
-        #    .skip(offset)
-        #    .limit(page_size)
-        #    .order_by('-created')
-        # )
 
     def resolve_post(self, context, identifier=None):
         author, permlink = identifier[1:].split('/')
