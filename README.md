@@ -62,7 +62,7 @@ Get posts filtered by category and author.
   }
 }
 ```
-Pagination - posts is divided into pages, use page param: `page=2`
+Pagination - posts is divided into pages, use page param: `page: "2"`
 
 ### Queries
 ```
