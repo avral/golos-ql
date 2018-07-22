@@ -1,15 +1,18 @@
 import graphene
+
 from graphene.relay import Node
 from graphene_mongo import MongoengineObjectType
 from graphene.types.generic import GenericScalar
+from account.types import Account
+from account.models import AccountModel
 
-from models import (
-    CommentModel, VoteModel
-)
-from utils import find_comments, find_images, prepare_json
+from post.models import CommentModel, VoteModel
+from stats.models import DGPModel
+
+from common.utils import find_comments, find_images, prepare_json
 
 
-class Meta(graphene.ObjectType):
+class PostMeta(graphene.ObjectType):
     image = GenericScalar(first=graphene.Boolean())
     app = GenericScalar()
     location = GenericScalar()
@@ -37,19 +40,7 @@ class Meta(graphene.ObjectType):
         return self.get('location')
 
 
-class Comment(MongoengineObjectType):
-    class Meta:
-        model = CommentModel
-        interfaces = (Node,)
-
-
-class Stats(graphene.ObjectType):
-    posts_count = graphene.Int()
-
-    def resolve_posts_count(self, info):
-        return CommentModel.objects.count()
-
-
+# Отдельный апп
 class Vote(graphene.ObjectType):
     voter = graphene.String()
 
@@ -58,20 +49,30 @@ class Vote(graphene.ObjectType):
 
 
 class Post(MongoengineObjectType):
-    comments = graphene.List(Comment)
-    json_metadata = graphene.Field(Meta)
+    comments = graphene.List('post.types.Post')
+    author = graphene.Field(Account)
+    json_metadata = graphene.Field(PostMeta)
     thumb = graphene.String()
     total_payout = graphene.Int()
     votes = graphene.List(Vote)
     is_voted = graphene.Boolean(account=graphene.String())
+    total_pending_payout = graphene.Float()
 
     class Meta:
         model = CommentModel
         interfaces = (Node,)
 
     def resolve_votes(self, info):
-        # return VoteModel.objects(vo)
         return self.net_votes
+
+    def resolve_total_pending_payout(self, info):
+        dgp = DGPModel.objects.first()
+
+        tpp = self['vote_rshares']
+        tpp *= dgp.total_reward_fund_steem_value
+        tpp /= dgp.total_reward_shares2
+
+        return tpp
 
     def resolve_total_payout(self, info):
         return 0
@@ -92,3 +93,12 @@ class Post(MongoengineObjectType):
 
     def resolve_thumb(self, info):
         return find_images(self.body, first=True)
+
+    def resolve_author(self, info):
+        return AccountModel.objects(name=self.author).first()
+
+
+class Comment(Post):
+    class Meta:
+        model = CommentModel
+        interfaces = (Node,)

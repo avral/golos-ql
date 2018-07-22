@@ -6,10 +6,4 @@ RUN pip install -r requirements.txt
 
 ADD . /app
 
-
-#COPY . /app
-#WORKDIR /app
-#
-#RUN pip install -r requirements.txt
-#
-#WORKDIR /app
+CMD flask run --host=0.0.0.0

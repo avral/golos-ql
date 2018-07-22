@@ -1,7 +1,7 @@
 import re
 import json
 
-from models import CommentModel
+from post.models import CommentModel
 
 
 def prepare_json(json_sting):
@@ -28,22 +28,25 @@ def find_images(body, first=False):
     return images
 
 
-def nodes(node):
-    node['childs'] = []
-
-    for comment in CommentModel.objects(parent_author=node.author,
-                                        parent_permlink=node.permlink):
-
-        node['childs'].append(nodes(comment))
-
-    return node
+# TODO Пока не используется, да и нужно ли
+# def nodes(node):
+#     node['childs'] = []
+#
+#     for comment in CommentModel.objects(parent_author=node.author,
+#                                         parent_permlink=node.permlink):
+#
+#         node['childs'].append(nodes(comment))
+#
+#     return node
 
 
 def find_comments(post):
     comments = []
 
-    for comment in CommentModel.objects(parent_author=post.author,
-                                        parent_permlink=post.permlink):
-        comments.append(nodes(comment))
+    for comment in CommentModel.objects(root_comment=post.id):
+        if comment.root_comment == comment.id:
+            continue
+
+        comments.append(comment)
 
     return comments
