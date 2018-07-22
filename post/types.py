@@ -52,18 +52,22 @@ class Post(MongoengineObjectType):
     comments = graphene.List('post.types.Post')
     author = graphene.Field(Account)
     json_metadata = graphene.Field(PostMeta)
-    thumb = graphene.String()
+    thumb = graphene.String(description='First image in post body')
     total_payout = graphene.Int()
-    votes = graphene.List(Vote)
-    is_voted = graphene.Boolean(account=graphene.String())
     total_pending_payout = graphene.Float()
+    is_voted = graphene.Boolean(
+        description='Check whether the account was voted for this post',
+        account=graphene.String(),
+    )
 
     class Meta:
+        description = '''
+            All posts.
+            Pagination - posts is divided into pages,
+            use page param: page=2
+        '''
         model = CommentModel
         interfaces = (Node,)
-
-    def resolve_votes(self, info):
-        return self.net_votes
 
     def resolve_total_pending_payout(self, info):
         dgp = DGPModel.objects.first()
@@ -100,5 +104,6 @@ class Post(MongoengineObjectType):
 
 class Comment(Post):
     class Meta:
+        description = 'All comments'
         model = CommentModel
         interfaces = (Node,)

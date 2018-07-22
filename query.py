@@ -26,7 +26,7 @@ for directory in subdirectories:
             queries = [x[1] for x in classes if 'Query' in x[0]]
             queries_base_classes += queries
     except ModuleNotFoundError as e:
-        print(e.msg, directory)
+        # print(e.msg, directory)
         pass
 
 queries_base_classes = queries_base_classes[::-1]

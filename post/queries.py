@@ -1,3 +1,5 @@
+import os
+
 import graphene
 
 from post.types import Post, Comment
@@ -7,7 +9,7 @@ from post.models import CommentModel
 class PostQuery(graphene.ObjectType):
     posts = graphene.List(
         Post,
-        tag=graphene.String(),
+        # tag=graphene.String(),
         category=graphene.String(),
         author=graphene.String(),
         page=graphene.Int(),
@@ -26,7 +28,7 @@ class PostQuery(graphene.ObjectType):
     def resolve_posts(self, info, page=1,
                       author=None, category=None, tag=None):
         # {"tags":\[.*"ru--golos".*?\],
-        page_size = 10
+        page_size = int(os.getenv('PAGINATION', 10))
         offset = (page - 1) * page_size
         q = {
             "depth": 0  # Only posts
@@ -48,13 +50,10 @@ class PostQuery(graphene.ObjectType):
     def resolve_post(self, context, identifier=None):
         author, permlink = identifier[1:].split('/')
 
-        for key in CommentModel.objects.get(author=author, permlink=permlink).__dict__.keys():
-            print(key)
-
         return CommentModel.objects.get(author=author, permlink=permlink)
 
     def resolve_comments(self, info, page=1):
-        page_size = 10
+        page_size = int(os.getenv('PAGINATION', 10))
         offset = (page - 1) * page_size
 
         return list(
