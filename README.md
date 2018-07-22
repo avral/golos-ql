@@ -40,6 +40,16 @@ Get post with author name, balance, avatar. Comments wiht check if some user vot
 }
 ```
 
+Get posts filtered by category and author.
+```
+{
+  posts(author: "dark.sun", category: "mapala") {
+    title
+  }
+}
+```
+Pagination - posts is divided into pages, use page param: `page=2`
+
 ### Queries
 ```
 account
@@ -60,6 +70,8 @@ MONGO_USER=
 MONGO_PASSWORD=
 
 GOLOS_DB_NAME=
+
+PAGINATION=20
 ```
 
 ### Build
