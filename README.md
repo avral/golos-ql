@@ -10,6 +10,17 @@ graphene-python
 2. Run docker container `docker run -d -p 5000:5000 --env-file .env avral/golos-ql`
 3. Complete! Use your server on http://127.0.0.1:5000/graphql
 
+### Env file example
+```
+MONGO_HOST=
+MONGO_USER=
+MONGO_PASSWORD=
+
+GOLOS_DB_NAME=
+
+PAGINATION=20
+```
+
 ### Example queryes
 Get post with author name, balance, avatar. Comments wiht check if some user vote for this post and count of votes. And image preview.
 ```
@@ -61,18 +72,6 @@ stats
 ```
 
 For see all types and queries click "< Docs" button on /graphql
-
-
-### Env file example
-```
-MONGO_HOST=
-MONGO_USER=
-MONGO_PASSWORD=
-
-GOLOS_DB_NAME=
-
-PAGINATION=20
-```
 
 ### Build
 If you want build by your self.  
