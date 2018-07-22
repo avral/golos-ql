@@ -10,6 +10,9 @@ graphene-python
 2. Run docker container `docker run -d -p 5000:5000 --env-file .env avral/golos-ql`
 3. Complete! Use your server on http://127.0.0.1:5000/graphql
 
+###
+Try https://golos-ql.mapala.net
+
 ### Env file example
 ```
 MONGO_HOST=
