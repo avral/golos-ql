@@ -9,6 +9,7 @@ from account.models import AccountModel
 from post.models import CommentModel, VoteModel
 from stats.models import DGPModel
 
+from common.fields import CustomMongoengineConnectionField
 from common.utils import find_comments, find_images, prepare_json
 
 
@@ -41,11 +42,18 @@ class PostMeta(graphene.ObjectType):
 
 
 # Отдельный апп
-class Vote(graphene.ObjectType):
-    voter = graphene.String()
+class Vote(MongoengineObjectType):
+    voter = graphene.Field(Account)
 
     def resolve_voter(self, info):
-        return self['voter']
+        return AccountModel.objects().get(name=self['voter'])
+
+    class Meta:
+        description = '''
+            All votes.
+        '''
+        model = VoteModel
+        interfaces = (Node,)
 
 
 class Post(MongoengineObjectType):
@@ -53,8 +61,8 @@ class Post(MongoengineObjectType):
     author = graphene.Field(Account)
     json_metadata = graphene.Field(PostMeta)
     thumb = graphene.String(description='First image in post body')
-    total_payout = graphene.Int()
     total_pending_payout = graphene.Float()
+    votes = CustomMongoengineConnectionField(Vote)
     is_voted = graphene.Boolean(
         description='Check whether the account was voted for this post',
         account=graphene.String(),
@@ -78,9 +86,6 @@ class Post(MongoengineObjectType):
 
         return tpp
 
-    def resolve_total_payout(self, info):
-        return 0
-
     def resolve_is_voted(self, info, account):
         vote = VoteModel.objects(comment=self.id, voter=account).first()
 
@@ -100,6 +105,9 @@ class Post(MongoengineObjectType):
 
     def resolve_author(self, info):
         return AccountModel.objects(name=self.author).first()
+
+    def resolve_votes(self, info, args):
+        return VoteModel.objects(permlink=self.permlink, author=self.author)
 
 
 class Comment(Post):
