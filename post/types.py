@@ -57,7 +57,6 @@ class Vote(MongoengineObjectType):
 
 
 class Post(MongoengineObjectType):
-    comments = graphene.List('post.types.Post')
     author = graphene.Field(Account)
     json_metadata = graphene.Field(PostMeta)
     thumb = graphene.String(description='First image in post body')
@@ -67,6 +66,9 @@ class Post(MongoengineObjectType):
         description='Check whether the account was voted for this post',
         account=graphene.String(),
     )
+    comments = graphene.List('post.types.Post',
+                             first=graphene.Int(),
+                             last=graphene.Int())
 
     class Meta:
         description = '''
@@ -91,8 +93,16 @@ class Post(MongoengineObjectType):
 
         return vote is not None
 
-    def resolve_comments(self, info):
-        return find_comments(self)
+    def resolve_comments(self, info, first=None, last=None):
+        # TODO Написать простой пагинатор для комментов
+        comments = find_comments(self)
+
+        if first is not None:
+            comments = comments[:first]
+        elif last is not None:
+            comments = comments[max(0, len(comments) - last):]
+
+        return comments
 
     def resolve_image(self, info):
         return self.json_metadata['image'][0]
