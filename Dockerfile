@@ -10,4 +10,7 @@ ADD . /app
 # Development
 # CMD flask run --host=0.0.0.0
 
-CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5000"]
+CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5000", \
+    "--workers=4", \
+    "--timeout=120", \
+    "--log-level=debug"]
