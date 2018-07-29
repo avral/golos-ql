@@ -62,7 +62,9 @@ class AccountModel(DynamicDocument):
     meta = {
         'collection': 'account_object',
         'indexes': [
-            'name'
+            'name',
+            'created',
+            'reset_account'
         ],
 
         'auto_create_index': True,
