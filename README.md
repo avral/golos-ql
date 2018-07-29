@@ -4,6 +4,7 @@ Golos blockchain GraphQL service.
 Python 3.6  
 Flask  
 graphene-python
+golos-mongo-plugin
 
 ### Run
 1. Create .env file
@@ -20,21 +21,21 @@ MONGO_USER=
 MONGO_PASSWORD=
 
 GOLOS_DB_NAME=
-
-PAGINATION=20
 ```
 
 ### Example queryes
-Get post with author name, balance, avatar. Comments wiht check if some user vote for this post and count of votes. And image preview.
+Get post with author name, balance, avatar. Comments wiht check if some user vote for this post, count of votes. Image preview. 
 ```
 {
-  post(identifier: "@avral/sumba-indonieziia-") {
+  post(identifier: "@avral/ru-golos-ql-anons-graphql-servera-dlya-golosa") {
     title,
     body,
     thumb,
-    comments {
+    comments(last: 2) {
       body,
       created,
+      parentAuthor,
+      parentPermlink,
       author {
         name
       }
@@ -49,20 +50,54 @@ Get post with author name, balance, avatar. Comments wiht check if some user vot
           profileImage
         }
       }
+    },
+    votes(first: 10) {
+      edges {
+        node {
+          voter {
+            name,
+          }
+        }
+      }
     }
   }
 }
 ```
 
 Get posts filtered by category and author.
+GraphQL pagination standards.
 ```
 {
-  posts(author: "dark.sun", category: "mapala") {
-    title
+  posts(author: "dark.sun", category: "mapala", first: 2, after: "6e4f5120adba2bbbac9d6d4d") {
+    edges {
+      node {
+        title
+      },
+      cursor
+    }
   }
 }
 ```
-Pagination - posts is divided into pages, use page param: `page: "2"`
+Sorting - by default all edges ordered by -created.
+
+Account:
+```
+{
+  account(name: "avral") {
+    name,
+    balanceValue,
+    votingPower,
+    created,
+    curationRewards,
+    postCount,
+    meta {
+      profile {
+        profileImage
+      }
+    }
+  }
+}
+```
 
 ### Queries
 ```
@@ -74,7 +109,7 @@ comments
 stats
 ```
 
-For see all types and queries click "< Docs" button on /graphql
+For see all types/fields and queries click "< Docs" button on GraphiQl: /graphql
 
 ### Build
 If you want build by your self.  
