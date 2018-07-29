@@ -3,3 +3,4 @@ data
 logs
 .venv/
 .env
+*.pyc 
