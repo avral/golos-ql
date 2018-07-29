@@ -7,6 +7,10 @@ from graphene_mongo.utils import get_model_fields
 
 class CustomMongoengineConnectionField(MongoengineConnectionField):
     @property
+    def fields(self):
+        return self.type._meta.fields
+
+    @property
     def field_args(self):
         args = {}
 
