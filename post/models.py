@@ -10,6 +10,12 @@ class VoteModel(DynamicDocument):
     author = StringField()
     voter = StringField()
     comment = ObjectId()
+    last_update = DateTimeField()
+    num_changes = IntField()
+    permlink = StringField()
+    rshares = IntField()
+    vote_percent = IntField()
+    weight = FloatField()
 
     meta = {
         'collection': 'comment_vote_object',
