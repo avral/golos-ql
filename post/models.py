@@ -16,7 +16,9 @@ class VoteModel(DynamicDocument):
         'indexes': [
             'author',
             'voter',
-            'comment'
+            'comment',
+            'permlink',
+            'last_update'
         ],
 
         'auto_create_index': True,
@@ -77,7 +79,10 @@ class CommentModel(DynamicDocument):
             'created',
             'category',
             'depth',
-            'root_comment'
+            'root_comment',
+            'parent_permlink',
+            'parent_author',
+            'mode'
         ],
 
         'auto_create_index': True,
