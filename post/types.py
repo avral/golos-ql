@@ -95,7 +95,7 @@ class Post(MongoengineObjectType):
 
     def resolve_comments(self, info, first=None, last=None):
         # TODO Написать простой пагинатор для комментов
-        comments = find_comments(self)
+        comments = find_comments(self)[::-1]
 
         if first is not None:
             comments = comments[:first]
