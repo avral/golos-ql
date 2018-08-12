@@ -22,10 +22,52 @@ connect(
 )
 
 
+# TODO Default query
+default_query = """
+{
+  post(identifier: "@avral/ru-golos-ql-anons-graphql-servera-dlya-golosa") {
+    title,
+    body,
+    thumb,
+    comments(last: 2) {
+      body,
+      created,
+      parentAuthor,
+      parentPermlink,
+      author {
+        name
+      }
+    },
+    isVoted(account: "seriy"),
+    netVotes,
+    author {
+      name,
+      balanceValue,
+      meta {
+        profile {
+          profileImage
+        }
+      }
+    },
+    votes(first: 10) {
+      edges {
+        node {
+          voter {
+            name,
+          }
+        }
+      }
+    }
+  }
+}
+""".strip()
+
+
 schema = graphene.Schema(query=query.Queries)
 app.add_url_rule('/graphql', view_func=GraphQLView.as_view('graphql',
                                                            schema=schema,
-                                                           graphiql=True))
+                                                           graphiql=True,
+                                                           query=default_query))
 
 if __name__ == '__main__':
     app.run()

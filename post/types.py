@@ -38,7 +38,7 @@ class PostMeta(graphene.ObjectType):
         return self.get('app', 'undefined')
 
     def resolve_location(self, info):
-        return self.get('location')
+        return self.get('location', {})
 
 
 # Отдельный апп
@@ -58,7 +58,7 @@ class Vote(MongoengineObjectType):
 
 class Post(MongoengineObjectType):
     author = graphene.Field(Account)
-    json_metadata = graphene.Field(PostMeta)
+    meta = graphene.Field(PostMeta)
     thumb = graphene.String(description='First image in post body')
     total_pending_payout = graphene.Float()
     votes = CustomMongoengineConnectionField(Vote)
@@ -107,7 +107,7 @@ class Post(MongoengineObjectType):
     def resolve_image(self, info):
         return self.json_metadata['image'][0]
 
-    def resolve_json_metadata(self, info):
+    def resolve_meta(self, info):
         return prepare_json(self.json_metadata)
 
     def resolve_thumb(self, info):
