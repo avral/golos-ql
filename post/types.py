@@ -11,6 +11,7 @@ from stats.models import DGPModel
 
 from common.fields import CustomMongoengineConnectionField
 from common.utils import find_comments, find_images, prepare_json
+from post import utils
 
 
 class PostMeta(graphene.ObjectType):
@@ -62,6 +63,7 @@ class Post(MongoengineObjectType):
     thumb = graphene.String(description='First image in post body')
     total_pending_payout = graphene.Float()
     votes = CustomMongoengineConnectionField(Vote)
+    body = graphene.String(linkify_images=graphene.Boolean())
     is_voted = graphene.Boolean(
         description='Check whether the account was voted for this post',
         account=graphene.String(),
@@ -118,6 +120,14 @@ class Post(MongoengineObjectType):
 
     def resolve_votes(self, info, args):
         return VoteModel.objects(permlink=self.permlink, author=self.author)
+
+    def resolve_body(self, info, linkify_images=False):
+        format = prepare_json(self.json_metadata).get('format', 'html')
+
+        if linkify_images:
+            return utils.linkify_images(self.body, format)
+        else:
+            return self.body
 
 
 class Comment(Post):
