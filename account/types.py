@@ -44,4 +44,4 @@ class Account(MongoengineObjectType):
         interfaces = (Node,)
 
     def resolve_meta(self, info):
-        return prepare_json(self.json_metadata)
+        return self.json_metadata or {}

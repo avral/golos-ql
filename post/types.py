@@ -110,7 +110,7 @@ class Post(MongoengineObjectType):
         return self.json_metadata['image'][0]
 
     def resolve_meta(self, info):
-        return prepare_json(self.json_metadata)
+        return self.json_metadata or {}
 
     def resolve_thumb(self, info):
         return find_images(self.body, first=True)

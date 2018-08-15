@@ -53,7 +53,7 @@ class CommentModel(DynamicDocument):
     curator_payout_symbol = StringField()
     curator_payout_value = FloatField()
     depth = IntField()
-    json_metadata = StringField()
+    json_metadata = DictField()
     last_payout = DateTimeField()
     last_update = DateTimeField()
     max_accepted_payout_symbol = StringField()
@@ -88,7 +88,9 @@ class CommentModel(DynamicDocument):
             'root_comment',
             'parent_permlink',
             'parent_author',
-            'mode'
+            'mode',
+            'json_metadata.app',
+            'json_metadata.tags',
         ],
 
         'auto_create_index': True,

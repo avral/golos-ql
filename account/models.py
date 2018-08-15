@@ -1,7 +1,7 @@
 from mongoengine import DynamicDocument
 from mongoengine.fields import (
     StringField, IntField, DateTimeField, BooleanField,
-    FloatField, ListField
+    FloatField, ListField, DictField
 )
 
 
@@ -15,7 +15,7 @@ class AccountModel(DynamicDocument):
     curation_rewards = IntField()
     delegated_vesting_shares_symbol = StringField()
     delegated_vesting_shares_value = FloatField()
-    json_metadata = StringField()
+    json_metadata = DictField()
     last_account_recovery = DateTimeField()
     last_account_update = DateTimeField()
     last_active_proved = DateTimeField()

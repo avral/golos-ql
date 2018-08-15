@@ -1,5 +1,3 @@
-import os
-
 import graphene
 
 from post.types import Post, Comment
@@ -8,8 +6,19 @@ from common.fields import CustomMongoengineConnectionField, CommentIdentifier
 from post.utils import qs_ab_filter
 
 
+class Geometry(graphene.InputObjectType):
+    type = graphene.String()
+    coordinates = graphene.List(graphene.Float)
+
+
+class MetaFilter(graphene.InputObjectType):
+    tags = graphene.List(graphene.String)
+    app = graphene.String()
+    # TODO Разобраться с фильтрацией location = Geometry()
+
+
 class PostQuery(graphene.ObjectType):
-    posts = CustomMongoengineConnectionField(Post)
+    posts = CustomMongoengineConnectionField(Post, meta=MetaFilter())
     post = graphene.Field(Post, identifier=CommentIdentifier())
 
     comments = CustomMongoengineConnectionField(Comment)
@@ -17,6 +26,16 @@ class PostQuery(graphene.ObjectType):
 
     def resolve_posts(self, info, args):
         qs = CommentModel.objects(depth=0)
+
+        meta = args.get('meta', {})
+        tags = meta.get('tags')
+        app = meta.get('app')
+
+        if tags:
+            qs = qs.filter(json_metadata__tags__all=tags)
+
+        if app:
+            qs = qs.filter(json_metadata__app=app)
 
         return qs_ab_filter(qs, args)
 
