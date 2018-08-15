@@ -3,11 +3,15 @@ import os
 import graphene
 from flask import Flask
 from flask_graphql import GraphQLView
+from flask_graphql import render_graphiql
 from flask_cors import CORS
 from mongoengine import connect
 
 import query
 
+
+with open('./playground_template.html', 'r') as myfile:
+    render_graphiql.TEMPLATE = myfile.read()
 
 app = Flask(__name__)
 app.debug = True
