@@ -5,7 +5,8 @@ from graphene.relay import Node
 from graphene_mongo import MongoengineObjectType
 
 from account.models import (
-    AccountModel
+    AccountModel,
+    AccountAuthorityModel
 )
 
 from common.utils import prepare_json
@@ -45,3 +46,9 @@ class Account(MongoengineObjectType):
 
     def resolve_meta(self, info):
         return self.json_metadata or {}
+
+
+class AccountAuthority(MongoengineObjectType):
+    class Meta:
+        model = AccountAuthorityModel
+        interfaces = (Node,)

@@ -5,6 +5,26 @@ from mongoengine.fields import (
 )
 
 
+class AccountAuthorityModel(DynamicDocument):
+    account = StringField()
+    active = ListField(StringField())
+    last_owner_update = DateTimeField()
+    owner = ListField(StringField())
+    posting = ListField(StringField())
+
+    meta = {
+        'collection': 'account_authority_object',
+        'indexes': [
+            'name',
+            'created',
+            'reset_account'
+        ],
+
+        'auto_create_index': True,
+        'index_background': True
+    }
+
+
 class AccountModel(DynamicDocument):
     active_challenged = BooleanField()
     balance_symbol = StringField()
