@@ -6,3 +6,4 @@ mongomock
 flask-cors
 tqdm
 urlextract
+raven[flask]

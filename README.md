@@ -21,6 +21,7 @@ MONGO_USER=
 MONGO_PASSWORD=
 
 GOLOS_DB_NAME=
+SENTRY_DSN=
 ```
 
 ### Example queryes

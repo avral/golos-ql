@@ -1,11 +1,13 @@
 import os
 
-import graphene
 from flask import Flask
 from flask_graphql import GraphQLView
 from flask_graphql import render_graphiql
 from flask_cors import CORS
+
+import graphene
 from mongoengine import connect
+from raven.contrib.flask import Sentry
 
 import query
 
@@ -16,6 +18,7 @@ with open('./playground_template.html', 'r') as myfile:
 app = Flask(__name__)
 app.debug = True
 CORS(app)
+Sentry(app)
 
 connect(
     os.getenv('GOLOS_DB_NAME', 'Golos'),
