@@ -12,5 +12,5 @@ ADD . /app
 
 CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5000", \
     "--workers=4", \
-    "--timeout=120", \
+    "--timeout=30", \
     "--log-level=debug"]
