@@ -1,5 +1,6 @@
 from contextlib import suppress
 
+from mongoengine.base.datastructures import BaseDict
 import graphene
 from graphene.relay import Node
 from graphene_mongo import MongoengineObjectType
@@ -45,7 +46,10 @@ class Account(MongoengineObjectType):
         interfaces = (Node,)
 
     def resolve_meta(self, info):
-        return self.json_metadata or {}
+        if isinstance(self.json_metadata, BaseDict):
+            return self.json_metadata
+        else:
+            return {}
 
 
 class AccountAuthority(MongoengineObjectType):
