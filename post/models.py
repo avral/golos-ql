@@ -46,7 +46,7 @@ class CommentModel(DynamicDocument):
     body = StringField()
     cashout_time = DateTimeField()
     category = StringField()
-    children = IntField()
+    children = IntField() # TODO сделать вывод количества всех комментариев
     children_abs_rshares = IntField()
     children_rshares2 = IntField()
     created = DateTimeField()

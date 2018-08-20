@@ -55,7 +55,7 @@ class PostQuery(graphene.ObjectType):
     def resolve_post(self, context, identifier=None):
         author, permlink = identifier[1:].split('/')
 
-        return CommentModel.objects.get(author=author, permlink=permlink)
+        return CommentModel.objects(author=author, permlink=permlink).first()
 
     def resolve_comments(self, info, args):
         qs = CommentModel.objects(depth__ne=0, removed=False)
@@ -65,6 +65,6 @@ class PostQuery(graphene.ObjectType):
     def resolve_comment(self, context, identifier=None):
         author, permlink = identifier[1:].split('/')
 
-        return CommentModel.objects.get(depth__ne=0,
-                                        author=author,
-                                        permlink=permlink)
+        return CommentModel.objects(depth__ne=0,
+                                    author=author,
+                                    permlink=permlink).first()
