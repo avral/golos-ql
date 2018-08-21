@@ -5,6 +5,9 @@ from post.models import CommentModel
 
 
 def prepare_json(json_sting):
+    if isinstance(json_sting, dict):
+        return json_sting
+
     try:
         return json.loads(json_sting)
     except:

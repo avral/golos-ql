@@ -20,6 +20,10 @@ class PostMeta(graphene.ObjectType):
     location = GenericScalar()
     tags = GenericScalar()
     format = graphene.String()
+    json_metadata = GenericScalar()
+
+    def resolve_json_metadata(self, info):
+        return prepare_json(self.json_metadata)
 
     def resolve_format(self, info):
         return self.get('format', None)

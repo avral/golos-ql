@@ -4,6 +4,7 @@ from mongoengine.base.datastructures import BaseDict
 import graphene
 from graphene.relay import Node
 from graphene_mongo import MongoengineObjectType
+from graphene.types.generic import GenericScalar
 
 from account.models import (
     AccountModel,
@@ -40,6 +41,10 @@ class AccountMeta(graphene.ObjectType):
 
 class Account(MongoengineObjectType):
     meta = graphene.Field(AccountMeta)
+    json_metadata = GenericScalar()
+
+    def resolve_json_metadata(self, info):
+        return prepare_json(self.json_metadata)
 
     class Meta:
         model = AccountModel
