@@ -12,6 +12,29 @@ from account.models import (
 )
 
 from common.utils import prepare_json
+from common.types import GeometryObjectType
+
+
+class AccountLocation(graphene.ObjectType):
+    properties = GenericScalar()
+    geometry = graphene.Field(GeometryObjectType)
+
+    def resolve_properties(self, info):
+        return self.get('properties', {})
+
+    def resolve_geometry(self, info):
+        return self.get('geometry', {})
+
+
+class MapalaProfile(graphene.ObjectType):
+    avatar = graphene.String()
+    location = graphene.Field(AccountLocation)
+
+    def resolve_avatar(self, info):
+        return self.get('avatar')
+
+    def resolve_location(self, info):
+        return self.get('location', {})
 
 
 class AccountProfile(graphene.ObjectType):
@@ -34,6 +57,10 @@ class AccountProfile(graphene.ObjectType):
 
 class AccountMeta(graphene.ObjectType):
     profile = graphene.Field(AccountProfile)
+    mapala_profile = graphene.Field(MapalaProfile)
+
+    def resolve_mapala_profile(self, info):
+        return self.get('mapalaProfile', {})
 
     def resolve_profile(self, info):
         return self.get('profile', {})
